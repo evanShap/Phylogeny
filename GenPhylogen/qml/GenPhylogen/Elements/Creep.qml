@@ -98,7 +98,7 @@ Item{
     function kill(){
         deactivate();
         opacity = 0;
-//        visible = false;
+        visible = false;
         nTentacles = -1;
         nSides = -1;
         mutantsModel = [];

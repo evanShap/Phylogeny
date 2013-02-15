@@ -29,8 +29,6 @@ Project/CppUTest
 *.DS*
 
 #main.qml file in SpallaApp
-*main.qml
-*Playground.qml
 
 # Application configuration
 config.ini
