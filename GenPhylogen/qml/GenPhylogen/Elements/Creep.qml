@@ -12,6 +12,7 @@ Item{
     property variant mutantsModel: generateMutantsModel()
     property bool active: true
     property variant leadTethers: []
+    property real prefXOffset: 0
 
     Behavior on x { NumberAnimation{ duration: .9 * animateInterval } }
     Behavior on y { NumberAnimation{ duration: .9 * animateInterval } }
@@ -64,12 +65,10 @@ Item{
     MouseArea{
         anchors.fill: parent
         drag.target: parent
-        drag.axis: Drag.XandYAxis
+        drag.axis: Drag.XAxis
         onClicked: if(active) toggleState()
-        drag.minimumX: 0
-        drag.minimumY: 0
-        drag.maximumX: stage.width - width
-        drag.maximumY: stage.height - height
+        drag.minimumX: 0        
+        drag.maximumX: stage.width - width        
     }
 
     transitions:[
@@ -94,6 +93,16 @@ Item{
         active = false;
         state = "";
         creepView.deactivate();
+    }
+
+    function kill(){
+        deactivate();
+        opacity = 0;
+//        visible = false;
+        nTentacles = -1;
+        nSides = -1;
+        mutantsModel = [];
+        leadTethers = [];
     }
 
     function generateMutantsModel(){
