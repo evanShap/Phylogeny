@@ -25,7 +25,7 @@ Item {
         _creepTraits[0]["nSides"] = endCreepData.nSides;
         _creepTraits[0]["x"] = stage.width / activeColumns * ( columnIndex + .5 );
         _creepTraits[0]["y"] = stage.height - ( currentLevel ) * levelSpacing;
-        _creepTraits[0]["isEndCreep"] = true;
+        _creepTraits[0]["isEndCreep"] = true;        
         creepTraits = _creepTraits
         CreepSpawner.spawnCreep( creepTraits[0] );
     }

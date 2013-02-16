@@ -45,15 +45,29 @@ Item{
     Loader {
         id: loader_glow
         anchors.fill: blur
-        sourceComponent: isEndCreep ? component_glow : undefined
+        sourceComponent:{
+            if( isEndCreep ) return component_glowEnd;
+            else if( isMutant ) return component_glowMutant;
+            else return undefined;
+        }
         Component {
-            id: component_glow
+            id: component_glowEnd
             Glow{
                 id: glow
                 source: blur
                 radius: 75
                 samples: 24
                 color: "#A0F0E0"
+            }
+        }
+        Component {
+            id: component_glowMutant
+            Glow{
+                id: glow
+                source: blur
+                radius: 75
+                samples: 24
+                color: "#F07070"
             }
         }
     }

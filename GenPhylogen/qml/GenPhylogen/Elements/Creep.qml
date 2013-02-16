@@ -13,6 +13,7 @@ Item{
     property bool active: true
     property variant leadTethers: []
     property real prefXOffset: 0
+    property bool isMutant: false
 
     Behavior on x { NumberAnimation{ duration: .9 * animateInterval } }
     Behavior on y { NumberAnimation{ duration: .9 * animateInterval } }
@@ -121,14 +122,26 @@ Item{
             validSides.push( nSides -1 );
             validSides.push( nSides +1 );
         }
+        //add the non-mutated form
+        var mutantData = {}
+        mutantData["isMutator"] = false;
+        mutantData["nTentacles"] = nTentacles;
+        mutantData["nSides"] = nSides;
+        _mutantsModel.push( mutantData );
+
+        //add the tentacle variants
         for( var i=0; i<validTentacles.length; i++ ){
-            var mutantData = {}
+            mutantData = {}
+            mutantData["isMutator"] = true;
             mutantData["nTentacles"] = validTentacles[i];
             mutantData["nSides"] = nSides;
             _mutantsModel.push( mutantData );
         }
-        for( var i=0; i<validSides.length; i++ ){
-            var mutantData = {}
+
+        //add the sides variants
+        for( i=0; i<validSides.length; i++ ){
+            mutantData = {}
+            mutantData["isMutator"] = true;
             mutantData["nTentacles"] = nTentacles;
             mutantData["nSides"] = validSides[i];
             _mutantsModel.push( mutantData );

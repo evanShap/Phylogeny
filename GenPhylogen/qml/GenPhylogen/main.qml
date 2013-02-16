@@ -32,10 +32,10 @@ Rectangle {
 
             ctx.lineCap = "straight";
             ctx.lineJoin = "round";
-            ctx.strokeStyle = Qt.rgba(.63, .94, .88, .4);
             ctx.lineWidth = 6;
 
             for( var i=0; i<tethers.length; i++ ){
+                ctx.strokeStyle = tethers[i].follow.isMutant ? Qt.rgba(.94, 0, 0, .4) : Qt.rgba(.63, .94, .88, .4);
                 ctx.beginPath();
                 ctx.moveTo( tethers[i].lead.x + tethers[i].lead.width/2 , tethers[i].lead.y  + tethers[i].lead.height/2 );
                 ctx.lineTo( tethers[i].follow.x + tethers[i].follow.width/2 , tethers[i].follow.y  + tethers[i].follow.height/2 );
@@ -81,6 +81,7 @@ Rectangle {
         tetherLead.leadTethers = leadIndices;
         _nextTether["lead"] = tetherLead;
         _nextTether["follow"] = tetherFollow;
+//        _nextTether[""]
         _tethers.push( _nextTether );
         tethers = _tethers;
     }
@@ -96,10 +97,15 @@ Rectangle {
         }
     }
     function checkForAncestor(){
+        var creep1
+        var creep2
         for( var i=0; i<chainRepeater.count; i++ ){
             for( var j=0; j<i; j++){
-                if( chainRepeater.itemAt(i).begCreepItem == chainRepeater.itemAt(j).begCreepItem ){}
-                else if(!chainRepeater.itemAt(i).begCreepItem.active || !chainRepeater.itemAt(j).begCreepItem.active){}
+                creep1 = chainRepeater.itemAt(i).begCreepItem;
+                creep2 = chainRepeater.itemAt(j).begCreepItem;
+                if( chainRepeater.itemAt(i).creepsInChain != chainRepeater.itemAt(j).creepsInChain ){}
+                else if( creep1 == creep2 ){}
+                else if(!creep1.active || !creep2.active){}
                 else if( haveSameTraits( chainRepeater.itemAt(i).begCreepData , chainRepeater.itemAt(j).begCreepData ))
                     mergeChains( chainRepeater.itemAt(i) , chainRepeater.itemAt(j) );
             }
