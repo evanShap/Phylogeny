@@ -12,6 +12,7 @@ Item{
     height: 40
     transformOrigin: Item.Center
     rotation: 360 * Math.random()
+    Behavior on scale { NumberAnimation{ duration: 250 } }
 
     Item{
         id: blurHolder
@@ -46,8 +47,8 @@ Item{
         id: loader_glow
         anchors.fill: blur
         sourceComponent:{
-            if( isEndCreep ) return component_glowEnd;
-            else if( isMutant ) return component_glowMutant;
+//            if( isEndCreep ) return component_glowEnd;
+            if( isMutant ) return component_glowMutant;
             else return undefined;
         }
         Component {
@@ -65,9 +66,10 @@ Item{
             Glow{
                 id: glow
                 source: blur
-                radius: 75
-                samples: 24
-                color: "#F07070"
+                radius: 12
+                samples: 16
+                spread: .6
+                color: "#FF4040"
             }
         }
     }
@@ -91,8 +93,9 @@ Item{
     }
 
     function deactivate(){
-        tentacles.tentacleColor = "#E0706060"
-        body.color = "#E0704444"
+        tentacles.tentacleColor = "#B0404040"
+        body.color = "#B0404040"
+        root.scale = .75
     }
 }
 

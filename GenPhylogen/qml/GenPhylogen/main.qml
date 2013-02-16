@@ -9,7 +9,7 @@ Rectangle {
     property int animateInterval: 75
     property variant tethers: []
     property variant creepModels: creepModels
-    property real levelSpacing: 120
+    property real levelSpacing: 90
     property int currentLevel: 0
 
     property int activeColumns: creepModels.count
@@ -17,17 +17,12 @@ Rectangle {
 
     ListModel{
         id: creepModels
-//        ListElement{nTentacles: 3; nSides: 3}
-//        ListElement{nTentacles: 5; nSides: 4}
-//        ListElement{nTentacles: 7; nSides: 5}
-        ListElement{nTentacles: 7; nSides: 3}
-        ListElement{nTentacles: 6; nSides: 4}
-        ListElement{nTentacles: 5; nSides: 3}
-        ListElement{nTentacles: 4; nSides: 4}
-//        ListElement{nTentacles: 3; nSides: 3}
-//        ListElement{nTentacles: 2; nSides: 4}
-//        ListElement{nTentacles: 1; nSides: 3}
-//        ListElement{nTentacles: 0; nSides: 4}
+        ListElement{nTentacles: 0; nSides: 3}
+        ListElement{nTentacles: 2; nSides: 3}
+        ListElement{nTentacles: 4; nSides: 3}
+        ListElement{nTentacles: 6; nSides: 3}
+        ListElement{nTentacles: 8; nSides: 3}
+        ListElement{nTentacles: 1; nSides: 3}
     }
 
     Canvas{
@@ -41,16 +36,16 @@ Rectangle {
             ctx.lineCap = "straight";
             ctx.lineJoin = "round";
             ctx.lineWidth = 1;
-
+            ctx.strokeStyle = Qt.rgba( .8, .8, .8, 1);
             for( var i=0; i<tethers.length; i++ ){
                 var upperX = tethers[i].lead.x + tethers[i].lead.width/2;
                 var upperY = tethers[i].lead.y  + tethers[i].lead.height/2;
                 var lowerX = tethers[i].follow.x + tethers[i].follow.width/2;
                 var lowerY = tethers[i].follow.y  + tethers[i].follow.height/2;
-                ctx.strokeStyle = tethers[i].follow.isMutant ? Qt.rgba(.94, 0, 0, .84) : Qt.rgba( 0, .94, .94, .84);
+//                ctx.strokeStyle = tethers[i].follow.isMutant ? Qt.rgba(.94, 0, 0, .84) : Qt.rgba( 0, .94, .94, .84);
                 ctx.beginPath();
                 ctx.moveTo( upperX , upperY );
-                ctx.bezierCurveTo( upperX, upperY + levelSpacing/2, lowerX, lowerY - levelSpacing/2, lowerX , lowerY );
+                ctx.bezierCurveTo( upperX, upperY + levelSpacing/3, lowerX, lowerY - levelSpacing/3, lowerX , lowerY );
 //                ctx.lineTo( tethers[i].follow.x + tethers[i].follow.width/2 , tethers[i].follow.y  + tethers[i].follow.height/2 );
                 ctx.stroke();
             }
@@ -105,7 +100,7 @@ Rectangle {
             var leadCreep = tethers[i].lead;
             var dist = ( leadCreep.x - followCreep.x + followCreep.prefXOffset );
             if ( Math.abs( dist ) > 5 ){
-                followCreep.x += .4 * (dist);
+                if( !followCreep.isDragging ) followCreep.x += .4 * (dist);
             }
         }
     }
@@ -136,18 +131,20 @@ Rectangle {
         var leadCreep2 = chain2.begCreepItem;
         if( leadCreep1.isEndCreep ) leadCreep2.isEndCreep = true;
         else if( leadCreep2.isEndCreep ) leadCreep1.isEndCreep = true;
+        chain2.branchesInChain ++;
+        chain1.branchesInChain ++;
         if(leadCreep1.leadTethers.length > 0){
             var _tethers = tethers;
             for( var i=0; i<leadCreep1.leadTethers.length; i++){
                 _tethers[leadCreep1.leadTethers[i]].lead = leadCreep2;
-                _tethers[leadCreep1.leadTethers[i]].follow.prefXOffset = activeColumnSpacing / 2;
+                _tethers[leadCreep1.leadTethers[i]].follow.prefXOffset = .575* activeColumnSpacing * chain1.branchesInChain;
             }
             for( var i=0; i<leadCreep2.leadTethers.length; i++){
-                _tethers[leadCreep2.leadTethers[i]].follow.prefXOffset = - activeColumnSpacing / 2;
+                _tethers[leadCreep2.leadTethers[i]].follow.prefXOffset = - .575* activeColumnSpacing * chain2.branchesInChain;
             }
-
             tethers = _tethers;
         }
+        chain2.branchesInChain += ( chain1.branchesInChain - 2 )
         leadCreep2.isBranchPoint = true;
         leadCreep1.kill();
         //        chain1.begCreepItem = leadCreep2;

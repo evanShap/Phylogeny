@@ -11,6 +11,7 @@ Item {
     property variant begCreepData: creepTraits[ creepTraits.length - 1 ]
     property variant begCreepItem: CreepSpawner.creepItems[ CreepSpawner.creepItems.length - 1 ]
     property int columnIndex: 0
+    property int branchesInChain: 0
 
     signal addTetherSignal( variant tetherLead, variant tetherFollow )
     signal checkForAncestorSignal()

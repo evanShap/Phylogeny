@@ -15,6 +15,7 @@ Item{
     property real prefXOffset: 0
     property bool isMutant: false
     property bool isBranchPoint: false
+    property bool isDragging: mouseArea.drag.active
 
     Behavior on x { NumberAnimation{ duration: .9 * animateInterval } }
     Behavior on y { NumberAnimation{ duration: .9 * animateInterval } }
@@ -65,12 +66,19 @@ Item{
     }
 
     MouseArea{
+        id: mouseArea
         anchors.fill: parent
         drag.target: parent
         drag.axis: Drag.XAxis
         onClicked: if(active) toggleState()
         drag.minimumX: 0        
-        drag.maximumX: stage.width - width        
+        drag.maximumX: stage.width - width
+        property bool dragActive: drag.active
+        property real startDragX: 0
+        onDragActiveChanged: {
+            if( dragActive ) startDragX = root.x
+            else if( !active ) prefXOffset += root.x - startDragX;
+        }
     }
 
     transitions:[
@@ -101,10 +109,10 @@ Item{
         deactivate();
         opacity = 0;
         visible = false;
-        nTentacles = -1;
-        nSides = -1;
-        mutantsModel = [];
-        leadTethers = [];
+//        nTentacles = -1;
+//        nSides = -1;
+//        mutantsModel = [];
+//        leadTethers = [];
     }
 
     function generateMutantsModel(){
