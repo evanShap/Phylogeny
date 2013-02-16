@@ -14,6 +14,7 @@ Item{
     property variant leadTethers: []
     property real prefXOffset: 0
     property bool isMutant: false
+    property bool isBranchPoint: false
 
     Behavior on x { NumberAnimation{ duration: .9 * animateInterval } }
     Behavior on y { NumberAnimation{ duration: .9 * animateInterval } }

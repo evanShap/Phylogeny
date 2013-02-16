@@ -24,10 +24,10 @@ Rectangle {
         ListElement{nTentacles: 6; nSides: 4}
         ListElement{nTentacles: 5; nSides: 3}
         ListElement{nTentacles: 4; nSides: 4}
-        ListElement{nTentacles: 3; nSides: 3}
-        ListElement{nTentacles: 2; nSides: 4}
-        ListElement{nTentacles: 1; nSides: 3}
-        ListElement{nTentacles: 0; nSides: 4}
+//        ListElement{nTentacles: 3; nSides: 3}
+//        ListElement{nTentacles: 2; nSides: 4}
+//        ListElement{nTentacles: 1; nSides: 3}
+//        ListElement{nTentacles: 0; nSides: 4}
     }
 
     Canvas{
@@ -40,13 +40,18 @@ Rectangle {
 
             ctx.lineCap = "straight";
             ctx.lineJoin = "round";
-            ctx.lineWidth = 6;
+            ctx.lineWidth = 1;
 
             for( var i=0; i<tethers.length; i++ ){
-                ctx.strokeStyle = tethers[i].follow.isMutant ? Qt.rgba(.94, 0, 0, .4) : Qt.rgba(.63, .94, .88, .4);
+                var upperX = tethers[i].lead.x + tethers[i].lead.width/2;
+                var upperY = tethers[i].lead.y  + tethers[i].lead.height/2;
+                var lowerX = tethers[i].follow.x + tethers[i].follow.width/2;
+                var lowerY = tethers[i].follow.y  + tethers[i].follow.height/2;
+                ctx.strokeStyle = tethers[i].follow.isMutant ? Qt.rgba(.94, 0, 0, .84) : Qt.rgba( 0, .94, .94, .84);
                 ctx.beginPath();
-                ctx.moveTo( tethers[i].lead.x + tethers[i].lead.width/2 , tethers[i].lead.y  + tethers[i].lead.height/2 );
-                ctx.lineTo( tethers[i].follow.x + tethers[i].follow.width/2 , tethers[i].follow.y  + tethers[i].follow.height/2 );
+                ctx.moveTo( upperX , upperY );
+                ctx.bezierCurveTo( upperX, upperY + levelSpacing/2, lowerX, lowerY - levelSpacing/2, lowerX , lowerY );
+//                ctx.lineTo( tethers[i].follow.x + tethers[i].follow.width/2 , tethers[i].follow.y  + tethers[i].follow.height/2 );
                 ctx.stroke();
             }
         }
@@ -113,6 +118,7 @@ Rectangle {
                 creep2 = chainRepeater.itemAt(j).begCreepItem;
                 if( chainRepeater.itemAt(i).creepsInChain != chainRepeater.itemAt(j).creepsInChain ){}
                 else if( creep1 == creep2 ){}
+                else if( creep1.isBranchPoint || creep2.isBranchPoint ){}
                 else if(!creep1.active || !creep2.active){}
                 else if( haveSameTraits( chainRepeater.itemAt(i).begCreepData , chainRepeater.itemAt(j).begCreepData ))
                     mergeChains( chainRepeater.itemAt(i) , chainRepeater.itemAt(j) );
@@ -142,6 +148,7 @@ Rectangle {
 
             tethers = _tethers;
         }
+        leadCreep2.isBranchPoint = true;
         leadCreep1.kill();
         //        chain1.begCreepItem = leadCreep2;
         //        leadCreep1.destroy();
