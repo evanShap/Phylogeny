@@ -4,8 +4,17 @@ import "../Elements"
 
 Item{
     id: root
-    property int nTentacles: 0
-    property int nSides: 0
+    property variant traits: [0,0]
+    property int nTentacles: traits[0]
+    property int nSides: traits[1]
+    property color bodyColor:{
+        if ( traits[2] == 0 ) return "#193E75"
+        else if ( traits[2] == 1 ) return "#721D8E"
+        else if ( traits[2] == 2 ) return "#A32100"
+        else if ( traits[2] == 3 ) return "#526614"
+        else if ( traits[2] == 4 ) return "#00624A"
+    }
+
     property bool isEndCreep: false
     property bool isActive: true
 
@@ -40,7 +49,7 @@ Item{
             width: root.width
             height: root.height
             radius: width / 2
-            color: "#08302A"
+            color: bodyColor
             border.color: "#A0A0A0"
             border.width: 1
             Behavior on color { ColorAnimation{ duration : 250 } }
@@ -63,7 +72,7 @@ Item{
                 radius: 8
                 samples: 8
                 spread: .15
-                color: "yellow"
+                color: "grey"
             }
         }
         Component {

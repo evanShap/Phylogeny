@@ -9,8 +9,7 @@ function spawnCreep( creepData ){
     }
     newCreepComp = Qt.createComponent("Creep.qml");
     newCreep = newCreepComp.createObject(root, {
-                                             "nTentacles": creepData.nTentacles,
-                                             "nSides": creepData.nSides,
+                                             "traits": creepData.traits,
                                              "x": creepData.x,
                                              "y": creepData.y,
                                              "isEndCreep": creepData.isEndCreep || false

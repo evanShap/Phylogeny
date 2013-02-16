@@ -3,11 +3,11 @@ import "CreepSpawner.js" as CreepSpawner
 
 Item {
     id: root
-    property variant creepTraits: [0]
-    property int creepsInChain: creepTraits.length
+    property variant creepData: [0]
+    property int creepsInChain: creepData.length
     onCreepsInChainChanged: updateCurrentLevelSignal()
     property variant endCreepData
-    property variant begCreepData: creepTraits[ creepTraits.length - 1 ]
+    property variant begCreepData: creepData[ creepData.length - 1 ]
     property variant begCreepItem: CreepSpawner.creepItems[ CreepSpawner.creepItems.length - 1 ]
     property int columnIndex: 0
     property int branchesInChain: 0
@@ -18,26 +18,25 @@ Item {
 
     Component.onCompleted: {
         // bs to allow dynamic manipulation of qml variant array element
-        var _creepTraits = creepTraits;
-        _creepTraits[0] = {};
+        var _creepData = creepData;
+        _creepData[0] = {};
         //
-        _creepTraits[0]["nTentacles"] = endCreepData.nTentacles;
-        _creepTraits[0]["nSides"] = endCreepData.nSides;
-        _creepTraits[0]["x"] = stage.width / activeColumns * ( columnIndex + .5 );
-        _creepTraits[0]["y"] = stage.height - ( creepsInChain ) * levelSpacing;
-        _creepTraits[0]["isEndCreep"] = true;        
-        creepTraits = _creepTraits
-        CreepSpawner.spawnCreep( creepTraits[0] );
+        _creepData[0]["traits"] = endCreepData;
+        _creepData[0]["x"] = stage.width / activeColumns * ( columnIndex + .5 );
+        _creepData[0]["y"] = stage.height - ( creepsInChain ) * levelSpacing;
+        _creepData[0]["isEndCreep"] = true;
+        creepData = _creepData
+        CreepSpawner.spawnCreep( creepData[0] );
     }
 
     function addCreep( mutant ){
         // bs to allow dynamic manipulation of qml variant array element
-        var _creepTraits = creepTraits;
-        _creepTraits.push( mutant );
-        creepTraits = _creepTraits;
+        var _creepData = creepData;
+        _creepData.push( mutant );
+        creepData = _creepData;
         //
-        _creepTraits[ _creepTraits.length-1 ].x =begCreepItem.x
-        _creepTraits[ _creepTraits.length-1 ].y = stage.height - ( creepsInChain ) * levelSpacing;
+        _creepData[ _creepData.length-1 ].x =begCreepItem.x
+        _creepData[ _creepData.length-1 ].y = stage.height - ( creepsInChain ) * levelSpacing;
         CreepSpawner.spawnCreep( mutant );        
         checkForAncestorSignal();
     }

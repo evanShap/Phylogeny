@@ -6,12 +6,11 @@ Item{
     width: creepView.width
     height: creepView.height
 
-    property int nTentacles: 0
-    property int nSides: 0
     property bool isEndCreep: false
     property variant mutantsModel: generateMutantsModel()
     property bool active: true
     property variant leadTethers: []
+    property variant traits: []
     property real prefXOffset: 0
     property bool isMutant: false
     property bool isBranchPoint: false
@@ -25,8 +24,7 @@ Item{
     CreepView{
         id: creepView
         anchors.centerIn: parent
-        nTentacles: root.nTentacles
-        nSides: root.nSides
+        traits: root.traits
         isEndCreep: root.isEndCreep
     }
 
@@ -46,8 +44,7 @@ Item{
             id: mutantRepeater
             model: mutantsModel
             delegate: CreepView{
-                nTentacles: mutantsModel[index].nTentacles
-                nSides: mutantsModel[index].nSides
+                traits: mutantsModel[index].traits
                 x: 100*index + 50 - width/2
                 y: 50 - height/2
                 scale: .75
@@ -71,7 +68,7 @@ Item{
         drag.target: parent
         drag.axis: Drag.XAxis
         onClicked: if(active) toggleState()
-        drag.minimumX: 0        
+        drag.minimumX: 0
         drag.maximumX: stage.width - width
         property bool dragActive: drag.active
         property real startDragX: 0
@@ -112,44 +109,60 @@ Item{
     }
 
     function generateMutantsModel(){
-        var _mutantsModel = new Array()
-        var validTentacles = new Array()
-        var validSides = new Array()
-        if( nTentacles <= 0 ) validTentacles.push( 1 );
-        else if( nTentacles >= 9 ) validTentacles.push( 8 );
-        else{
-            validTentacles.push( nTentacles -1 );
-            validTentacles.push( nTentacles +1 );
-        }
-        if( nSides <= 3 ) validSides.push( 4 );
-        else if( nSides >= 7 ) validSides.push( 6 );
-        else{
-            validSides.push( nSides -1 );
-            validSides.push( nSides +1 );
+        var _mutantsModel = []
+        var validTraits = []
+
+        for ( var i=0; i<traits.length; i++ ){
+            validTraits[i] = [];
+
+            // if we have model for trait limit and trait is at limit
+            if( traitDataModel.get(i)){
+                if( traits[i] == traitDataModel.get(i).min){
+                    if( traitDataModel.get(i).loops ){
+                        validTraits[i].push( traitDataModel.get(i).max );
+                        if( traits[i]+1 < traitDataModel.get(i).max ) validTraits[i].push( traits[i]+1 );
+                    }
+                    else
+                        validTraits[i].push( traits[i]+1 );
+                }
+                else if( traits[i] == traitDataModel.get(i).max){
+                    if( traitDataModel.get(i).loops ){
+                        validTraits[i].push( traitDataModel.get(i).min );
+                        if( traits[i]-1 > traitDataModel.get(i).min ) validTraits[i].push( traits[i]-1 );
+                    }
+                    else
+                        validTraits[i].push( traits[i]-1 );
+                }
+                else{
+                    validTraits[i].push( traits[i]-1 );
+                    validTraits[i].push( traits[i]+1 );
+                }
+            }
+
+            // otherwise push incremented traits
+            else{
+                validTraits[i].push( traits[i]-1 );
+                validTraits[i].push( traits[i]+1 );
+            }
         }
         //add the non-mutated form
         var mutantData = {}
+        var _mutantTraits = []
         mutantData["isMutator"] = false;
-        mutantData["nTentacles"] = nTentacles;
-        mutantData["nSides"] = nSides;
+        mutantData["traits"] = traits;
         _mutantsModel.push( mutantData );
 
-        //add the tentacle variants
-        for( var i=0; i<validTentacles.length; i++ ){
-            mutantData = {}
-            mutantData["isMutator"] = true;
-            mutantData["nTentacles"] = validTentacles[i];
-            mutantData["nSides"] = nSides;
-            _mutantsModel.push( mutantData );
-        }
-
-        //add the sides variants
-        for( i=0; i<validSides.length; i++ ){
-            mutantData = {}
-            mutantData["isMutator"] = true;
-            mutantData["nTentacles"] = nTentacles;
-            mutantData["nSides"] = validSides[i];
-            _mutantsModel.push( mutantData );
+        //add all possible mutated forms
+        for ( i=0; i<validTraits.length; i++ ){
+            for ( var j=0; j<validTraits[i].length; j++ ){
+                _mutantTraits = traits;
+                console.debug("**** mutant " + i + "," +j + ": " + _mutantTraits)
+                _mutantTraits[i] = validTraits[i][j];
+                mutantData = {}
+                mutantData["isMutator"] = true;
+                mutantData["traits"] = _mutantTraits;
+                _mutantsModel.push( mutantData );
+            }
         }
         return _mutantsModel;
     }

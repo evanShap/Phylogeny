@@ -8,23 +8,41 @@ Rectangle {
 
     property int animateInterval: 75
     property variant tethers: []
-    property variant creepModels: creepModels
+//    property variant creepModels: creepModels
+    property variant traitDataModel: traitDataModel
+    property int totalTraits: traitDataModel.count
     property real levelSpacing: 100
     property int currentLevel: 0
     property int totalMutations: 0
-
-    property int activeColumns: creepModels.count
+    property int activeColumns: creepModels.length
     property real activeColumnSpacing: stage.width / activeColumns
 
     ListModel{
-        id: creepModels
-//        ListElement{nTentacles: 0; nSides: 4}
-        ListElement{nTentacles: 2; nSides: 4}
-        ListElement{nTentacles: 3; nSides: 4}
-        ListElement{nTentacles: 2; nSides: 3}
-        ListElement{nTentacles: 3; nSides: 3}
-        ListElement{nTentacles: 3; nSides: 5}
+        id: traitDataModel
+        ListElement{min: 0; max: 6; loops: false}
+        ListElement{min: 0; max: 6; loops: false}
+        ListElement{min: 0; max: 4; loops: true}
     }
+    property variant creepModels:[
+        [ 0 , 3 , 0 ],
+        [ 3 , 3 , 0 ],
+        [ 2 , 3 , 0 ],
+        [ 3 , 7 , 0 ],
+        [ 4 , 6 , 0 ],
+        [ 5 , 6 , 0 ],
+        [ 3 , 6 , 0 ]
+    ]
+//    ListModel{
+//        id: creepModels
+////        ListElement{nTentacles: 0; nSides: 4}
+//        ListElement{nTentacles: 1; nSides: 3}
+//        ListElement{nTentacles: 3; nSides: 3}
+//        ListElement{nTentacles: 2; nSides: 3}
+//        ListElement{nTentacles: 3; nSides: 7}
+//        ListElement{nTentacles: 4; nSides: 6}
+//        ListElement{nTentacles: 5; nSides: 6}
+//        ListElement{nTentacles: 3; nSides: 6}
+//    }
 
     Canvas{
         id: tetherCanvas
@@ -37,7 +55,7 @@ Rectangle {
             ctx.lineCap = "straight";
             ctx.lineJoin = "round";
             ctx.lineWidth = 17;
-            ctx.strokeStyle = Qt.rgba( .7, .7, .7, .85);
+            ctx.strokeStyle = Qt.rgba( .8, .8, .8, .85);
             for( var i=0; i<tethers.length; i++ ){
                 var upperX = tethers[i].lead.x + tethers[i].lead.width/2;
                 var upperY = tethers[i].lead.y  + tethers[i].lead.height/2;
@@ -49,13 +67,12 @@ Rectangle {
                 ctx.stroke();
             }
             ctx.lineWidth = 13;
-//            ctx.strokeStyle = Qt.rgba( .1, .1, .1, 1);
             for( var i=0; i<tethers.length; i++ ){
                 var upperX = tethers[i].lead.x + tethers[i].lead.width/2;
                 var upperY = tethers[i].lead.y  + tethers[i].lead.height/2;
                 var lowerX = tethers[i].follow.x + tethers[i].follow.width/2;
                 var lowerY = tethers[i].follow.y  + tethers[i].follow.height/2;
-                ctx.strokeStyle = tethers[i].follow.isMutant ? Qt.rgba(.44, 0, 0, .75) : Qt.rgba( .15, .15, .15, 1);
+                ctx.strokeStyle = tethers[i].follow.isMutant ? Qt.rgba(.4, 0, 0, .7) : Qt.rgba( .15, .15, .15, 1);
                 ctx.beginPath();
                 ctx.moveTo( upperX , upperY );
                 ctx.bezierCurveTo( upperX, upperY + levelSpacing/2, lowerX, lowerY - levelSpacing/2, lowerX , lowerY );
@@ -70,7 +87,7 @@ Rectangle {
         model: creepModels
         delegate:Chain{
             columnIndex: index
-            endCreepData: model
+            endCreepData: creepModels[ index ]
             Component.onCompleted: {
                 addTetherSignal.connect( stage.addTetherHandler )
                 checkForAncestorSignal.connect( stage.checkForAncestor )
@@ -120,7 +137,7 @@ Rectangle {
         tetherLead.leadTethers = leadIndices;
         _nextTether["lead"] = tetherLead;
         _nextTether["follow"] = tetherFollow;
-//        _nextTether[""]
+//        _nextTether[""]  TODO : add tether length values?
         _tethers.push( _nextTether );
         tethers = _tethers;
     }
@@ -131,10 +148,11 @@ Rectangle {
             var leadCreep = tethers[i].lead;
             var dist = ( leadCreep.x - followCreep.x + followCreep.prefXOffset );
             if ( Math.abs( dist ) > 5 ){
-                if( !followCreep.isDragging ) followCreep.x += .4 * (dist) ;
+                if( !followCreep.isDragging ) followCreep.x += (dist) ;
             }
         }
     }
+
     function checkForAncestor(){
         var creep1
         var creep2
@@ -142,19 +160,21 @@ Rectangle {
             for( var j=0; j<i; j++){
                 creep1 = chainRepeater.itemAt(i).begCreepItem;
                 creep2 = chainRepeater.itemAt(j).begCreepItem;
-                if( chainRepeater.itemAt(i).creepsInChain != chainRepeater.itemAt(j).creepsInChain ){}
+                if( chainRepeater.itemAt(i).creepsInChain !== chainRepeater.itemAt(j).creepsInChain ){}
                 else if( creep1 == creep2 ){}
                 else if( creep1.isBranchPoint || creep2.isBranchPoint ){}
                 else if(!creep1.active || !creep2.active){}
-                else if( haveSameTraits( chainRepeater.itemAt(i).begCreepData , chainRepeater.itemAt(j).begCreepData ))
+                else if( haveSameTraits( chainRepeater.itemAt(i).begCreepData.traits , chainRepeater.itemAt(j).begCreepData.traits ))
                     mergeChains( chainRepeater.itemAt(i) , chainRepeater.itemAt(j) );
             }
         }
     }
     function haveSameTraits( creepModel1 , creepModel2 ){
-        if(creepModel1.nTentacles != creepModel2.nTentacles) return false;
-        if(creepModel1.nSides != creepModel2.nSides) return false;
-        console.log("**** found match! " + creepModel1.nTentacles + ", " + creepModel2.nTentacles)
+        if( creepModel1.length !== creepModel2.length ) return false;
+        for ( var i=0; i<creepModel1.length; i++ ){
+            if( creepModel1[i] !== creepModel2[i]) return false;
+        }
+        console.log("**** found match! " + creepModel1 + ", " + creepModel2)
         return true;
     }
     function mergeChains( chain1 , chain2 ){
