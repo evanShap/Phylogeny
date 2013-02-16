@@ -5,7 +5,7 @@ Item {
     id: root
     property variant creepData: [0]
     property int creepsInChain: creepData.length
-    onCreepsInChainChanged: updateCurrentLevelSignal()
+    onCreepsInChainChanged: updateCurrentLevelSignal();
     property variant endCreepData
     property variant begCreepData: creepData[ creepData.length - 1 ]
     property variant begCreepItem: CreepSpawner.creepItems[ CreepSpawner.creepItems.length - 1 ]

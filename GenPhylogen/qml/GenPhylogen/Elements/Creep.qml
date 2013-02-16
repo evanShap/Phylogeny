@@ -156,7 +156,6 @@ Item{
         for ( i=0; i<validTraits.length; i++ ){
             for ( var j=0; j<validTraits[i].length; j++ ){
                 _mutantTraits = traits;
-                console.debug("**** mutant " + i + "," +j + ": " + _mutantTraits)
                 _mutantTraits[i] = validTraits[i][j];
                 mutantData = {}
                 mutantData["isMutator"] = true;

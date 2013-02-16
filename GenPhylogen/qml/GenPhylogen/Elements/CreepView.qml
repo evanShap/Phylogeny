@@ -9,10 +9,10 @@ Item{
     property int nSides: traits[1]
     property color bodyColor:{
         if ( traits[2] == 0 ) return "#193E75"
-        else if ( traits[2] == 1 ) return "#721D8E"
-        else if ( traits[2] == 2 ) return "#A32100"
-        else if ( traits[2] == 3 ) return "#526614"
-        else if ( traits[2] == 4 ) return "#00624A"
+        else if ( traits[2] == 1 ) return "#432D80"
+        else if ( traits[2] == 2 ) return "#721D8E"
+        else if ( traits[2] == 3 ) return "#921944"
+        else if ( traits[2] == 4 ) return "#A32100"
     }
 
     property bool isEndCreep: false

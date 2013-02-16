@@ -21,28 +21,15 @@ Rectangle {
         id: traitDataModel
         ListElement{min: 0; max: 6; loops: false}
         ListElement{min: 0; max: 6; loops: false}
-        ListElement{min: 0; max: 4; loops: true}
+        ListElement{min: 0; max: 4; loops: false}
     }
     property variant creepModels:[
         [ 0 , 3 , 0 ],
-        [ 3 , 3 , 0 ],
-        [ 2 , 3 , 0 ],
-        [ 3 , 7 , 0 ],
-        [ 4 , 6 , 0 ],
-        [ 5 , 6 , 0 ],
-        [ 3 , 6 , 0 ]
+        [ 3 , 3 , 1 ],
+        [ 2 , 4 , 2 ],
+        [ 3 , 6 , 3 ],
+        [ 3 , 6 , 4 ]
     ]
-//    ListModel{
-//        id: creepModels
-////        ListElement{nTentacles: 0; nSides: 4}
-//        ListElement{nTentacles: 1; nSides: 3}
-//        ListElement{nTentacles: 3; nSides: 3}
-//        ListElement{nTentacles: 2; nSides: 3}
-//        ListElement{nTentacles: 3; nSides: 7}
-//        ListElement{nTentacles: 4; nSides: 6}
-//        ListElement{nTentacles: 5; nSides: 6}
-//        ListElement{nTentacles: 3; nSides: 6}
-//    }
 
     Canvas{
         id: tetherCanvas
@@ -205,7 +192,7 @@ Rectangle {
 
     function updateCurrentLevel(){
         var _currentLevel = 0;
-        for ( var i=0; i<creepModels.count; i++ ){
+        for ( var i=0; i<creepModels.length; i++ ){
             if( !chainRepeater.itemAt(i) ) return 0;
             if( chainRepeater.itemAt(i).creepsInChain - 1 > _currentLevel)
                 _currentLevel = chainRepeater.itemAt(i).creepsInChain - 1;
