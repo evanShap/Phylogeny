@@ -4,8 +4,8 @@ Item{
     id: root
     property real wobblePeriod: Math.random()*1200 + 1800
     property real tentacleWobbleAngle: Math.random()*2 + 2
-    property real tentacleWidth: 15
-    property real tentacleLength: 45
+    property real tentacleWidth: 14
+    property real tentacleLength: 37
     property real tentacleLengthDev: Math.random()*2 + 2
     property real bulkRotation
     property color tentacleColor: "#F0E08080"
@@ -30,12 +30,12 @@ Item{
     Rectangle{
         id: ball
         smooth: true; antialiasing: true
-        width: tentacleWidth * 1.65
+        width: tentacleWidth * 1.75
         height: width
         radius: width/2
         color: tentacleColor
-        border.color: "#78A0A0A0"
-        border.width: 3
+        border.color: "#88FFFFFF"
+        border.width: 1
         z: 1
     }
     Rectangle{
@@ -46,7 +46,7 @@ Item{
         height: tentacleLength
         radius: width/2
         color: tentacleColor
-        border.color: "#78FFFFFF"
+        border.color: "#88FFFFFF"
         border.width: 1
     }
 }

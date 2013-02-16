@@ -5,7 +5,6 @@ Item {
     id: root
     property variant creepTraits: [0]
     property int creepsInChain: creepTraits.length
-    property int currentLevel: creepsInChain
     onCreepsInChainChanged: updateCurrentLevelSignal()
     property variant endCreepData
     property variant begCreepData: creepTraits[ creepTraits.length - 1 ]
@@ -25,7 +24,7 @@ Item {
         _creepTraits[0]["nTentacles"] = endCreepData.nTentacles;
         _creepTraits[0]["nSides"] = endCreepData.nSides;
         _creepTraits[0]["x"] = stage.width / activeColumns * ( columnIndex + .5 );
-        _creepTraits[0]["y"] = stage.height - ( currentLevel ) * levelSpacing;
+        _creepTraits[0]["y"] = stage.height - ( creepsInChain ) * levelSpacing;
         _creepTraits[0]["isEndCreep"] = true;        
         creepTraits = _creepTraits
         CreepSpawner.spawnCreep( creepTraits[0] );
@@ -38,7 +37,7 @@ Item {
         creepTraits = _creepTraits;
         //
         _creepTraits[ _creepTraits.length-1 ].x =begCreepItem.x
-        _creepTraits[ _creepTraits.length-1 ].y = stage.height - ( currentLevel ) * levelSpacing;
+        _creepTraits[ _creepTraits.length-1 ].y = stage.height - ( creepsInChain ) * levelSpacing;
         CreepSpawner.spawnCreep( mutant );        
         checkForAncestorSignal();
     }

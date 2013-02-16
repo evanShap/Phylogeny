@@ -109,10 +109,6 @@ Item{
         deactivate();
         opacity = 0;
         visible = false;
-//        nTentacles = -1;
-//        nSides = -1;
-//        mutantsModel = [];
-//        leadTethers = [];
     }
 
     function generateMutantsModel(){

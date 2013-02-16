@@ -3,7 +3,10 @@ var newCreep
 var creepItems = []
 
 function spawnCreep( creepData ){
-    if( creepData.isMutator ) creepItems[creepItems.length-1].isMutant = true;
+    if( creepData.isMutator ){
+        totalMutations++;
+        creepItems[creepItems.length-1].isMutant = true;
+    }
     newCreepComp = Qt.createComponent("Creep.qml");
     newCreep = newCreepComp.createObject(root, {
                                              "nTentacles": creepData.nTentacles,

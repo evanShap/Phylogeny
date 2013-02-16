@@ -7,11 +7,13 @@ Item{
     property int nTentacles: 0
     property int nSides: 0
     property bool isEndCreep: false
+    property bool isActive: true
 
     width: 40
     height: 40
     transformOrigin: Item.Center
     rotation: 360 * Math.random()
+    scale: 1.3
     Behavior on scale { NumberAnimation{ duration: 250 } }
 
     Item{
@@ -23,7 +25,7 @@ Item{
         Repeater{
             id: tentacles
             anchors.centerIn: parent
-            property color tentacleColor: "#F0E08080"
+            property color tentacleColor: "#A0295048"
             Behavior on tentacleColor { ColorAnimation{ duration : 250 } }
             model: nTentacles
             delegate: Tentacle{
@@ -38,7 +40,9 @@ Item{
             width: root.width
             height: root.height
             radius: width / 2
-            color: "#E04444"
+            color: "#08302A"
+            border.color: "#A0A0A0"
+            border.width: 1
             Behavior on color { ColorAnimation{ duration : 250 } }
         }
     }
@@ -47,18 +51,19 @@ Item{
         id: loader_glow
         anchors.fill: blur
         sourceComponent:{
-//            if( isEndCreep ) return component_glowEnd;
-            if( isMutant ) return component_glowMutant;
-            else return undefined;
+            if( isActive ) return component_glowEnd;
+            else if( isMutant ) return component_glowMutant;
+            else return component_glowNorm;
         }
         Component {
             id: component_glowEnd
             Glow{
                 id: glow
                 source: blur
-                radius: 75
-                samples: 24
-                color: "#A0F0E0"
+                radius: 8
+                samples: 8
+                spread: .15
+                color: "yellow"
             }
         }
         Component {
@@ -70,6 +75,17 @@ Item{
                 samples: 16
                 spread: .6
                 color: "#FF4040"
+            }
+        }
+        Component {
+            id: component_glowNorm
+            Glow{
+                id: glow
+                source: blur
+                radius: 12
+                samples: 16
+                spread: .6
+                color: "#909090"
             }
         }
     }
@@ -93,9 +109,10 @@ Item{
     }
 
     function deactivate(){
-        tentacles.tentacleColor = "#B0404040"
-        body.color = "#B0404040"
+        tentacles.tentacleColor = "#D0205050"
+        body.color = "#D0202020"
         root.scale = .75
+        isActive = false
     }
 }
 
