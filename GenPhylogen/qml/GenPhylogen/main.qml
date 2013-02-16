@@ -17,9 +17,17 @@ Rectangle {
 
     ListModel{
         id: creepModels
-        ListElement{nTentacles: 3; nSides: 3}//; x: 300; y: 200}
-        ListElement{nTentacles: 5; nSides: 4}//; x: 700; y: 500}
-        ListElement{nTentacles: 7; nSides: 5}//; x: 200; y: 600}
+//        ListElement{nTentacles: 3; nSides: 3}
+//        ListElement{nTentacles: 5; nSides: 4}
+//        ListElement{nTentacles: 7; nSides: 5}
+        ListElement{nTentacles: 7; nSides: 3}
+        ListElement{nTentacles: 6; nSides: 4}
+        ListElement{nTentacles: 5; nSides: 3}
+        ListElement{nTentacles: 4; nSides: 4}
+        ListElement{nTentacles: 3; nSides: 3}
+        ListElement{nTentacles: 2; nSides: 4}
+        ListElement{nTentacles: 1; nSides: 3}
+        ListElement{nTentacles: 0; nSides: 4}
     }
 
     Canvas{
