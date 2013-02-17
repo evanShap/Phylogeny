@@ -6,23 +6,23 @@ Item{
     id: root
     property variant traits: [0,0]
     property int nTentacles: traits[0]
-    property int nSides: traits[1]
+    property int nSides: traits[1]    
     property color bodyColor:{
-        if ( traits[2] == 0 ) return "#193E75"
-        else if ( traits[2] == 1 ) return "#432D80"
-        else if ( traits[2] == 2 ) return "#721D8E"
-        else if ( traits[2] == 3 ) return "#921944"
-        else if ( traits[2] == 4 ) return "#A32100"
+        if ( traits[2] == 0 ) return "#E0303890"
+        else if ( traits[2] == 1 ) return "#E03C2850"
+        else if ( traits[2] == 2 ) return "#E0882830"
+        else if ( traits[2] == 3 ) return "#E0B46430"
+        else if ( traits[2] == 4 ) return "#E0E0C020"
     }
 
     property bool isEndCreep: false
     property bool isActive: true
 
-    width: 40
-    height: 40
+    width: 75
+    height: 75
     transformOrigin: Item.Center
-    rotation: 360 * Math.random()
-    scale: 1.3
+//    rotation: 360 * Math.random()
+    scale: 1
     Behavior on scale { NumberAnimation{ duration: 250 } }
 
     Item{
@@ -34,7 +34,7 @@ Item{
         Repeater{
             id: tentacles
             anchors.centerIn: parent
-            property color tentacleColor: "#A0295048"
+            property color tentacleColor: Qt.rgba( bodyColor.r/3 + .15 , bodyColor.g/3 + .15 , bodyColor.b/3 + .15 , .75 )
             Behavior on tentacleColor { ColorAnimation{ duration : 250 } }
             model: nTentacles
             delegate: Tentacle{
@@ -50,18 +50,18 @@ Item{
             height: root.height
             radius: width / 2
             color: bodyColor
-            border.color: "#A0A0A0"
-            border.width: 1
-            Behavior on color { ColorAnimation{ duration : 250 } }
+            border.color: "#20A0A0A0"
+            border.width: 4
+            Behavior on color { ColorAnimation{ duration : 250 } }            
         }
-    }
+    }    
 
     Loader {
         id: loader_glow
         anchors.fill: blur
         sourceComponent:{
             if( isActive ) return component_glowEnd;
-            else if( isMutant ) return component_glowMutant;
+//            else if( isMutant ) return component_glowMutant;
             else return component_glowNorm;
         }
         Component {
@@ -69,10 +69,10 @@ Item{
             Glow{
                 id: glow
                 source: blur
-                radius: 8
-                samples: 8
+                radius: 48
+                samples: 16
                 spread: .15
-                color: "grey"
+                color: bodyColor
             }
         }
         Component {
@@ -91,7 +91,7 @@ Item{
             Glow{
                 id: glow
                 source: blur
-                radius: 12
+                radius: 8
                 samples: 16
                 spread: .6
                 color: "#909090"
@@ -106,21 +106,25 @@ Item{
         radius: 8
         samples: 8
     }
-
-    Text {
-        id: sideText
-        transformOrigin: Item.Center
-        rotation: -root.rotation
-        anchors.centerIn: root
-        font.pointSize: 24
-        text: nSides
-        color: "white"
+    Repeater{
+        id: lineRepeater
+        model: nSides
+        delegate: Rectangle{
+            smooth: true; antialiasing: true
+            anchors {horizontalCenter: parent.horizontalCenter}
+            width: parent.width/2 + Math.random()*parent.width/6
+            height: body.width/2 * Math.pow(1/nSides, 1.4)
+            radius: height/4
+            y: body.height/(nSides) * (index+.25)
+            color: "#B0FFFFFF"
+        }
     }
 
     function deactivate(){
-        tentacles.tentacleColor = "#D0205050"
-        body.color = "#D0202020"
-        root.scale = .75
+//        tentacles.tentacleColor = "#D0205050"
+        body.opacity = .65
+        tentacles.opacity = .65
+        root.scale = .45
         isActive = false
     }
 }

@@ -3,6 +3,10 @@ import "CreepSpawner.js" as CreepSpawner
 
 Item {
     id: root
+//    color: "#40ffffff"
+    width: stage.width
+    height: stage.height
+    anchors { bottom: parent.bottom }
     property variant creepData: [0]
     property int creepsInChain: creepData.length
     onCreepsInChainChanged: updateCurrentLevelSignal();
@@ -22,8 +26,8 @@ Item {
         _creepData[0] = {};
         //
         _creepData[0]["traits"] = endCreepData;
-        _creepData[0]["x"] = stage.width / activeColumns * ( columnIndex + .5 );
-        _creepData[0]["y"] = stage.height - ( creepsInChain ) * levelSpacing;
+        _creepData[0]["x"] = stage.width / activeColumns * ( columnIndex ) + 37;
+        _creepData[0]["y"] = stage.height - ( creepsInChain ) * levelSpacing - 20;
         _creepData[0]["isEndCreep"] = true;
         creepData = _creepData
         CreepSpawner.spawnCreep( creepData[0] );
@@ -35,8 +39,8 @@ Item {
         _creepData.push( mutant );
         creepData = _creepData;
         //
-        _creepData[ _creepData.length-1 ].x =begCreepItem.x
-        _creepData[ _creepData.length-1 ].y = stage.height - ( creepsInChain ) * levelSpacing;
+        _creepData[ _creepData.length-1 ].x = begCreepItem.x
+        _creepData[ _creepData.length-1 ].y = begCreepItem.y - levelSpacing;
         CreepSpawner.spawnCreep( mutant );        
         checkForAncestorSignal();
     }

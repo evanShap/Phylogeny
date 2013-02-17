@@ -1,17 +1,18 @@
 import QtQuick 2.0
 import "Elements"
-Rectangle {
+Flickable {
     id: stage
     width: 1024
     height: 768
-    color: "#282828"
+    contentHeight: Math.max( stage.height , (currentLevel + 2) * levelSpacing )
+    Behavior on contentHeight { NumberAnimation{ duration: 150 } }
+    boundsBehavior: Flickable.StopAtBounds
 
     property int animateInterval: 75
     property variant tethers: []
-//    property variant creepModels: creepModels
     property variant traitDataModel: traitDataModel
     property int totalTraits: traitDataModel.count
-    property real levelSpacing: 100
+    property real levelSpacing: 120
     property int currentLevel: 0
     property int totalMutations: 0
     property int activeColumns: creepModels.length
@@ -19,22 +20,30 @@ Rectangle {
 
     ListModel{
         id: traitDataModel
-        ListElement{min: 0; max: 6; loops: false}
-        ListElement{min: 0; max: 6; loops: false}
-        ListElement{min: 0; max: 4; loops: false}
+        ListElement{min: 0; max: 6; loops: false} //tentacles
+        ListElement{min: 0; max: 4; loops: false} //lines
+        ListElement{min: 0; max: 4; loops: false} //color
     }
     property variant creepModels:[
         [ 0 , 3 , 0 ],
         [ 3 , 3 , 1 ],
-        [ 2 , 4 , 2 ],
-        [ 3 , 6 , 3 ],
-        [ 3 , 6 , 4 ]
+        [ 2 , 0 , 2 ],
+        [ 3 , 2 , 3 ],
+        [ 3 , 1 , 4 ]
     ]
+    Rectangle{
+        id: background
+        anchors.fill: parent
+        color: "#282828"
+    }
 
     Canvas{
         id: tetherCanvas
         smooth: true; antialiasing: true;
-        anchors.fill: parent
+        width: stage.width
+        height: stage.height
+        y: contentY
+        property real contentOffsetY: contentHeight - stage.height - y;
         onPaint: {
             var ctx = tetherCanvas.getContext('2d');
             ctx.clearRect(0, 0, tetherCanvas.width, tetherCanvas.height);
@@ -45,9 +54,9 @@ Rectangle {
             ctx.strokeStyle = Qt.rgba( .8, .8, .8, .85);
             for( var i=0; i<tethers.length; i++ ){
                 var upperX = tethers[i].lead.x + tethers[i].lead.width/2;
-                var upperY = tethers[i].lead.y  + tethers[i].lead.height/2;
+                var upperY = tethers[i].lead.y  + tethers[i].lead.height/2 + contentOffsetY;
                 var lowerX = tethers[i].follow.x + tethers[i].follow.width/2;
-                var lowerY = tethers[i].follow.y  + tethers[i].follow.height/2;
+                var lowerY = tethers[i].follow.y  + tethers[i].follow.height/2 + contentOffsetY;
                 ctx.beginPath();
                 ctx.moveTo( upperX , upperY );
                 ctx.bezierCurveTo( upperX, upperY + levelSpacing/2, lowerX, lowerY - levelSpacing/2, lowerX , lowerY );
@@ -55,10 +64,10 @@ Rectangle {
             }
             ctx.lineWidth = 13;
             for( var i=0; i<tethers.length; i++ ){
-                var upperX = tethers[i].lead.x + tethers[i].lead.width/2;
-                var upperY = tethers[i].lead.y  + tethers[i].lead.height/2;
-                var lowerX = tethers[i].follow.x + tethers[i].follow.width/2;
-                var lowerY = tethers[i].follow.y  + tethers[i].follow.height/2;
+                upperX = tethers[i].lead.x + tethers[i].lead.width/2;
+                upperY = tethers[i].lead.y  + tethers[i].lead.height/2  + contentOffsetY;
+                lowerX = tethers[i].follow.x + tethers[i].follow.width/2;
+                lowerY = tethers[i].follow.y  + tethers[i].follow.height/2  + contentOffsetY;
                 ctx.strokeStyle = tethers[i].follow.isMutant ? Qt.rgba(.4, 0, 0, .7) : Qt.rgba( .15, .15, .15, 1);
                 ctx.beginPath();
                 ctx.moveTo( upperX , upperY );
@@ -72,6 +81,7 @@ Rectangle {
     Repeater{
         id: chainRepeater
         model: creepModels
+        anchors.fill: parent
         delegate:Chain{
             columnIndex: index
             endCreepData: creepModels[ index ]

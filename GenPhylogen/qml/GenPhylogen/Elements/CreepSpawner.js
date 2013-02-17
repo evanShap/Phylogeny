@@ -12,7 +12,8 @@ function spawnCreep( creepData ){
                                              "traits": creepData.traits,
                                              "x": creepData.x,
                                              "y": creepData.y,
-                                             "isEndCreep": creepData.isEndCreep || false
+//                                             "anchors.bottom": creepData.isEndCreep ? root.bottom : undefined,
+                                             "isEndCreep": creepData.isEndCreep || false                                             
                                          });
     newCreep.addMutantSignal.connect( addCreep );
     if(creepItems.length > 0){

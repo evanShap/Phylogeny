@@ -47,7 +47,7 @@ Item{
                 traits: mutantsModel[index].traits
                 x: 100*index + 50 - width/2
                 y: 50 - height/2
-                scale: .75
+                scale: .5
                 MouseArea{
                     anchors.fill:parent
                     onClicked:{
@@ -81,13 +81,13 @@ Item{
     transitions:[
         Transition {
             to: "mutants"
-            ScriptAction{ script: mutantDrawer.visible = true }
+            ScriptAction{ script: {mutantDrawer.visible = true; root.parent.z=1} }
             NumberAnimation { target: mutantDrawer; property: "opacity"; duration: 250; to: 1; easing.type: Easing.InOutQuad }
         },
         Transition {
             from: "mutants"
             NumberAnimation { target: mutantDrawer; property: "opacity"; duration: 250; to: 0; easing.type: Easing.InOutQuad }
-            ScriptAction{ script: mutantDrawer.visible = false }
+            ScriptAction{ script: {mutantDrawer.visible = false; root.parent.z=0;} }
         }
     ]
 
