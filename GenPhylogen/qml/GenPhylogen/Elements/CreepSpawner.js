@@ -28,10 +28,6 @@ function spawnCreep( creepData ){
 function popCreep(){
     creepItems.pop();
     begCreepItem = creepItems[ creepItems.length - 1 ];
-    if( begCreepItem.isMutant ){
-        begCreepItem.isMutant = false;
-        totalMutations--;
-    }
 }
 
 

@@ -195,14 +195,20 @@ Flickable {
         var _tethers = tethers;
 
         for( var i=0; i<leadCreep2.leadTethers.length; i++){
-            _tethers[leadCreep2.leadTethers[i]].follow.prefXOffset = - .375* activeColumnSpacing * chain2.branchesInChain;
+            if(leadCreep2.x < leadCreep1.x)
+                _tethers[leadCreep2.leadTethers[i]].follow.prefXOffset = - .375* activeColumnSpacing * chain2.branchesInChain;
+            else
+                _tethers[leadCreep2.leadTethers[i]].follow.prefXOffset = .375* activeColumnSpacing * chain2.branchesInChain;
         }
 
         var _lead2Tethers = leadCreep2.leadTethers;
 
         for( i=0; i<leadCreep1.leadTethers.length; i++ ){
             _tethers[leadCreep1.leadTethers[i]].lead = leadCreep2;
-            _tethers[leadCreep1.leadTethers[i]].follow.prefXOffset = .375* activeColumnSpacing * chain1.branchesInChain;
+            if(leadCreep2.x < leadCreep1.x)
+                _tethers[leadCreep1.leadTethers[i]].follow.prefXOffset = .375* activeColumnSpacing * chain1.branchesInChain;
+            else
+                _tethers[leadCreep1.leadTethers[i]].follow.prefXOffset = - .375* activeColumnSpacing * chain1.branchesInChain;
             _lead2Tethers.push( leadCreep1.leadTethers[i] );
         }
         leadCreep2.leadTethers = _lead2Tethers;
@@ -212,6 +218,9 @@ Flickable {
         leadCreep2.isBranchPoint = true;
         leadCreep2.branchChain = chain1;
         leadCreep2.x = .5 * ( leadCreep1.x + leadCreep2.x )
+        var _creepData1 = chain1.creepData
+        _creepData1.pop();
+        chain1.creepData = _creepData1;
         chain1.popCreep();
         leadCreep1.kill();
         leadCreep1.destroy();
@@ -229,11 +238,18 @@ Flickable {
         _creepData.pop();
         creep.parentChain.creepData = _creepData;
         creep.parentChain.popCreep();
+        if( creep.parentChain.begCreepItem.isMutant ){
+            creep.parentChain.begCreepItem.isMutant = false;
+            totalMutations--;
+        }
         creep.parentChain.begCreepItem.activate();
         creep.parentChain.begCreepItem.prefXOffset = 0;
+        creep.parentChain.branchesInChain--;
         if( creep.isBranchPoint ){
+            creep.isBranchPoint = false;
             creep.branchChain.begCreepItem.activate();
             creep.branchChain.begCreepItem.prefXOffset = 0;
+            creep.branchChain.branchesInChain--;
         }
         creep.kill();
         creep.destroy();
