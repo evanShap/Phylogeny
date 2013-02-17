@@ -69,12 +69,12 @@ Item{
     function generateMutantsModel(){
         var _mutantsModel = []
         var validTraits = []
-
+        // for each trait in the creep create an array to store valid mutations of that trait
         for ( var i=0; i<traits.length; i++ ){
             validTraits[i] = [];
-
-            // if we have model for trait limit and trait is at limit
+            // if we have model for how trait bounds
             if( traitDataModel.get(i)){
+                // if trait is at the minimum bound
                 if( traits[i] == traitDataModel.get(i).min){
                     if( traitDataModel.get(i).loops ){
                         validTraits[i].push( traitDataModel.get(i).max );
@@ -83,6 +83,7 @@ Item{
                     else
                         validTraits[i].push( traits[i]+1 );
                 }
+                // if trait is at the maximum bound
                 else if( traits[i] == traitDataModel.get(i).max){
                     if( traitDataModel.get(i).loops ){
                         validTraits[i].push( traitDataModel.get(i).min );
@@ -91,19 +92,19 @@ Item{
                     else
                         validTraits[i].push( traits[i]-1 );
                 }
+                // otherwise push incremented trait
                 else{
                     validTraits[i].push( traits[i]-1 );
                     validTraits[i].push( traits[i]+1 );
                 }
             }
-
             // otherwise push incremented traits
             else{
                 validTraits[i].push( traits[i]-1 );
                 validTraits[i].push( traits[i]+1 );
             }
         }
-        //add the non-mutated form
+        //add the non-mutated form to the mutants model
         var mutantData = {}
         var _mutantTraits = []
         mutantData["isMutator"] = false;
@@ -121,6 +122,7 @@ Item{
                 _mutantsModel.push( mutantData );
             }
         }
+
         return _mutantsModel;
     }
 }

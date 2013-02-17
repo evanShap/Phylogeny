@@ -142,6 +142,7 @@ Flickable {
         tethers = _tethers;
     }
 
+    // update x positions of creeps based on tether physics
     function updateTethers(){
         for( var i=0; i<tethers.length; i++ ){
             var followCreep = tethers[i].follow;
@@ -169,14 +170,16 @@ Flickable {
             }
         }
     }
+    // return true of 2 creep models have the same traits
     function haveSameTraits( creepModel1 , creepModel2 ){
         if( creepModel1.length !== creepModel2.length ) return false;
         for ( var i=0; i<creepModel1.length; i++ ){
             if( creepModel1[i] !== creepModel2[i]) return false;
-        }
-        console.log("**** found match! " + creepModel1 + ", " + creepModel2)
+        }        
         return true;
     }
+
+    // attaches chain 1 to head of chain 2, kills head of chain 1
     function mergeChains( chain1 , chain2 ){
         var leadCreep1 = chain1.begCreepItem;
         var leadCreep2 = chain2.begCreepItem;
@@ -199,8 +202,6 @@ Flickable {
         leadCreep2.isBranchPoint = true;
         leadCreep2.x = .5 * ( leadCreep1.x + leadCreep2.x )
         leadCreep1.kill();
-        //        chain1.begCreepItem = leadCreep2;
-        //        leadCreep1.destroy();
     }
 
     function updateCurrentLevel(){
