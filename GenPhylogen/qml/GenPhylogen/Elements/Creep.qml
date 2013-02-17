@@ -28,37 +28,13 @@ Item{
         isEndCreep: root.isEndCreep
     }
 
-    Rectangle{
+    MutantDrawer {
         id: mutantDrawer
-        visible: false
-        opacity: 0
-        smooth: true; antialiasing: true
+        mutantsModel: root.mutantsModel
+        parentChain: root.parent
         anchors{ bottom: root.top; bottomMargin: 10; horizontalCenter: root.horizontalCenter }
-        height: 100
-        width: 100 * mutantsModel.length
-        radius: 35
-        color: "#D0404040"
-        border.color: "#A0F0E0"
-        border.width: 2
-        Repeater{
-            id: mutantRepeater
-            model: mutantsModel
-            delegate: CreepView{
-                traits: mutantsModel[index].traits
-                x: 100*index + 50 - width/2
-                y: 50 - height/2
-                scale: .5
-                MouseArea{
-                    anchors.fill:parent
-                    onClicked:{
-                        var mutantToAdd = mutantsModel[index];
-                        mutantToAdd["x"] = parent.mapToItem(stage).x
-                        mutantToAdd["y"] = parent.mapToItem(stage).y
-                        addMutantSignal( mutantToAdd );
-                        toggleState();
-                    }
-                }
-            }
+        Component.onCompleted: {
+            addMutantSignal.connect( root.addMutantSignal );
         }
     }
 
@@ -67,7 +43,7 @@ Item{
         anchors.fill: parent
         drag.target: parent
         drag.axis: Drag.XAxis
-        onClicked: if(active) toggleState()
+        onClicked: if(active) mutantDrawer.toggleMutants();
         drag.minimumX: 0
         drag.maximumX: stage.width - width
         property bool dragActive: drag.active
@@ -76,24 +52,6 @@ Item{
             if( dragActive ) startDragX = root.x
             else if( !active ) prefXOffset += root.x - startDragX;
         }
-    }
-
-    transitions:[
-        Transition {
-            to: "mutants"
-            ScriptAction{ script: {mutantDrawer.visible = true; root.parent.z=1} }
-            NumberAnimation { target: mutantDrawer; property: "opacity"; duration: 250; to: 1; easing.type: Easing.InOutQuad }
-        },
-        Transition {
-            from: "mutants"
-            NumberAnimation { target: mutantDrawer; property: "opacity"; duration: 250; to: 0; easing.type: Easing.InOutQuad }
-            ScriptAction{ script: {mutantDrawer.visible = false; root.parent.z=0;} }
-        }
-    ]
-
-    function toggleState(){
-        if( state == "mutants" ) state = "";
-        else if( active ) state = "mutants";
     }
 
     function deactivate(){

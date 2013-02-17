@@ -21,7 +21,7 @@ Item{
     width: 75
     height: 75
     transformOrigin: Item.Center
-//    rotation: 360 * Math.random()
+    rotation: 360 * Math.random()
     scale: 1
     Behavior on scale { NumberAnimation{ duration: 250 } }
 
