@@ -56,6 +56,7 @@ Flickable {
             ctx.lineWidth = 17;
             ctx.strokeStyle = Qt.rgba( .8, .8, .8, .85);
             for( var i=0; i<tethers.length; i++ ){
+                if( !tethers[i].lead || !tethers[i].follow ) continue;
                 var upperX = tethers[i].lead.x + tethers[i].lead.width/2;
                 var upperY = tethers[i].lead.y  + tethers[i].lead.height/2 + contentOffsetY;
                 var lowerX = tethers[i].follow.x + tethers[i].follow.width/2;
@@ -67,6 +68,7 @@ Flickable {
             }
             ctx.lineWidth = 13;
             for( var i=0; i<tethers.length; i++ ){
+                if( !tethers[i].lead || !tethers[i].follow ) continue;
                 upperX = tethers[i].lead.x + tethers[i].lead.width/2;
                 upperY = tethers[i].lead.y  + tethers[i].lead.height/2  + contentOffsetY;
                 lowerX = tethers[i].follow.x + tethers[i].follow.width/2;
@@ -92,6 +94,7 @@ Flickable {
                 addTetherSignal.connect( stage.addTetherHandler )
                 checkForAncestorSignal.connect( stage.checkForAncestor )
                 updateCurrentLevelSignal.connect( stage.updateCurrentLevel )
+                killCreepSignal.connect( stage.killCreepHandler )
             }
         }
     }
@@ -137,7 +140,7 @@ Flickable {
         tetherLead.leadTethers = leadIndices;
         _nextTether["lead"] = tetherLead;
         _nextTether["follow"] = tetherFollow;
-//        _nextTether[""]  TODO : add tether length values?
+        //        _nextTether[""]  TODO : add tether length values?
         _tethers.push( _nextTether );
         tethers = _tethers;
     }
@@ -145,6 +148,7 @@ Flickable {
     // update x positions of creeps based on tether physics
     function updateTethers(){
         for( var i=0; i<tethers.length; i++ ){
+            if( !tethers[i].lead || !tethers[i].follow ) continue;
             var followCreep = tethers[i].follow;
             var leadCreep = tethers[i].lead;
             var dist = ( leadCreep.x - followCreep.x + followCreep.prefXOffset );
@@ -175,7 +179,7 @@ Flickable {
         if( creepModel1.length !== creepModel2.length ) return false;
         for ( var i=0; i<creepModel1.length; i++ ){
             if( creepModel1[i] !== creepModel2[i]) return false;
-        }        
+        }
         return true;
     }
 
@@ -187,23 +191,55 @@ Flickable {
         else if( leadCreep2.isEndCreep ) leadCreep1.isEndCreep = true;
         chain2.branchesInChain ++;
         chain1.branchesInChain ++;
-        if(leadCreep1.leadTethers.length > 0){
-            var _tethers = tethers;
-            for( var i=0; i<leadCreep1.leadTethers.length; i++){
-                _tethers[leadCreep1.leadTethers[i]].lead = leadCreep2;
-                _tethers[leadCreep1.leadTethers[i]].follow.prefXOffset = .375* activeColumnSpacing * chain1.branchesInChain;
-            }
-            for( var i=0; i<leadCreep2.leadTethers.length; i++){
-                _tethers[leadCreep2.leadTethers[i]].follow.prefXOffset = - .375* activeColumnSpacing * chain2.branchesInChain;
-            }
-            tethers = _tethers;
+
+        var _tethers = tethers;
+
+        for( var i=0; i<leadCreep2.leadTethers.length; i++){
+            _tethers[leadCreep2.leadTethers[i]].follow.prefXOffset = - .375* activeColumnSpacing * chain2.branchesInChain;
         }
+
+        var _lead2Tethers = leadCreep2.leadTethers;
+
+        for( i=0; i<leadCreep1.leadTethers.length; i++ ){
+            _tethers[leadCreep1.leadTethers[i]].lead = leadCreep2;
+            _tethers[leadCreep1.leadTethers[i]].follow.prefXOffset = .375* activeColumnSpacing * chain1.branchesInChain;
+            _lead2Tethers.push( leadCreep1.leadTethers[i] );
+        }
+        leadCreep2.leadTethers = _lead2Tethers;
+        tethers = _tethers;
+
         chain2.branchesInChain += ( chain1.branchesInChain - 1 )
         leadCreep2.isBranchPoint = true;
+        leadCreep2.branchChain = chain1;
         leadCreep2.x = .5 * ( leadCreep1.x + leadCreep2.x )
+        chain1.popCreep();
         leadCreep1.kill();
+        leadCreep1.destroy();
     }
 
+    function killCreepHandler( creep ){
+        var _tethers = tethers;
+        var _creepData = creep.parentChain.creepData;
+
+        for ( var i=0; i<creep.leadTethers.length; i++ ){
+            _tethers[creep.leadTethers[i]].lead = undefined;
+            _tethers[creep.leadTethers[i]].follow = undefined;
+        }
+        tethers = _tethers;
+        _creepData.pop();
+        creep.parentChain.creepData = _creepData;
+        creep.parentChain.popCreep();
+        creep.parentChain.begCreepItem.activate();
+        creep.parentChain.begCreepItem.prefXOffset = 0;
+        if( creep.isBranchPoint ){
+            creep.branchChain.begCreepItem.activate();
+            creep.branchChain.begCreepItem.prefXOffset = 0;
+        }
+        creep.kill();
+        creep.destroy();
+    }
+
+    // updates the generation tracker
     function updateCurrentLevel(){
         var _currentLevel = 0;
         for ( var i=0; i<creepModels.length; i++ ){

@@ -121,11 +121,16 @@ Item{
     }
 
     function deactivate(){
-//        tentacles.tentacleColor = "#D0205050"
         body.opacity = .65
         tentacles.opacity = .65
         root.scale = .45
         isActive = false
+    }
+    function activate(){
+        body.opacity = 1
+        tentacles.opacity = 1
+        root.scale = 1
+        isActive = true
     }
 }
 

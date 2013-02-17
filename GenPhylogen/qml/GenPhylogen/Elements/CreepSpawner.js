@@ -9,19 +9,29 @@ function spawnCreep( creepData ){
     }
     newCreepComp = Qt.createComponent("Creep.qml");
     newCreep = newCreepComp.createObject(root, {
+                                             "parentChain": root,
                                              "traits": creepData.traits,
                                              "x": creepData.x,
                                              "y": creepData.y,
-//                                             "anchors.bottom": creepData.isEndCreep ? root.bottom : undefined,
                                              "isEndCreep": creepData.isEndCreep || false                                             
                                          });
     newCreep.addMutantSignal.connect( addCreep );
+    newCreep.killCreepSignal.connect( root.killCreepSignal );
     if(creepItems.length > 0){
         addTetherSignal( newCreep , creepItems[creepItems.length-1] );
         creepItems[creepItems.length-1].deactivate();
     }
     creepItems.push( newCreep );
     begCreepItem = creepItems[ creepItems.length - 1 ];
+}
+
+function popCreep(){
+    creepItems.pop();
+    begCreepItem = creepItems[ creepItems.length - 1 ];
+    if( begCreepItem.isMutant ){
+        begCreepItem.isMutant = false;
+        totalMutations--;
+    }
 }
 
 

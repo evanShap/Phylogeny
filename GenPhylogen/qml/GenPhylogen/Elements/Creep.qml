@@ -11,16 +11,20 @@ Item{
     property bool active: true
     property variant leadTethers: []
     property variant traits: []
+    property variant parentChain
     property real prefXOffset: 0
     property bool isMutant: false
     property bool isBranchPoint: false
+    property variant branchChain: undefined
     property bool isDragging: mouseArea.drag.active
 
     Behavior on x { NumberAnimation{ duration: .9 * animateInterval } }
     Behavior on y { NumberAnimation{ duration: .9 * animateInterval } }
 
     signal addMutantSignal( variant mutant )
+    signal killCreepSignal( variant creep )
 
+    // the visual rendering of the creep
     CreepView{
         id: creepView
         anchors.centerIn: parent
@@ -28,16 +32,19 @@ Item{
         isEndCreep: root.isEndCreep
     }
 
+    // the visual rendering of the valid mutated forms of the creep
     MutantDrawer {
         id: mutantDrawer
         mutantsModel: root.mutantsModel
-        parentChain: root.parent
+        parentChain: root.parentChain
         anchors{ bottom: root.top; bottomMargin: 10; horizontalCenter: root.horizontalCenter }
         Component.onCompleted: {
             addMutantSignal.connect( root.addMutantSignal );
         }
+        onKillCreepSignal: root.killCreepSignal( root );
     }
 
+    // clickable area of the creep, opens/closes the mutant drawer
     MouseArea{
         id: mouseArea
         anchors.fill: parent
@@ -54,18 +61,26 @@ Item{
         }
     }
 
-    function deactivate(){
-        active = false;
-        state = "";
-        creepView.deactivate();
+    // restore a deactivated creep
+    function activate(){
+        active = true;
+        creepView.activate();
     }
 
+    // makes the creepView smal and the creep un-clickable
+    function deactivate(){
+        active = false;        
+        creepView.deactivate();
+    }    
+
+    // makes the creep invisible and unclickable
     function kill(){
         deactivate();
         opacity = 0;
         visible = false;
     }
 
+    // creates an array of creepModels representing the valid mutations for the current creep
     function generateMutantsModel(){
         var _mutantsModel = []
         var validTraits = []

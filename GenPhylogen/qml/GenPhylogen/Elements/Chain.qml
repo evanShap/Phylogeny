@@ -11,12 +11,13 @@ Item {
     property int creepsInChain: creepData.length
     onCreepsInChainChanged: updateCurrentLevelSignal();
     property variant endCreepData
-    property variant begCreepData: creepData[ creepData.length - 1 ]
+    property variant begCreepData: creepData[ creepData.length - 1 ]    
     property variant begCreepItem: CreepSpawner.creepItems[ CreepSpawner.creepItems.length - 1 ]
     property int columnIndex: 0
     property int branchesInChain: 0
 
     signal addTetherSignal( variant tetherLead, variant tetherFollow )
+    signal killCreepSignal( variant creep )
     signal checkForAncestorSignal()
     signal updateCurrentLevelSignal()
 
@@ -43,5 +44,9 @@ Item {
         _creepData[ _creepData.length-1 ].y = begCreepItem.y - levelSpacing;
         CreepSpawner.spawnCreep( mutant );        
         checkForAncestorSignal();
+    }
+
+    function popCreep(){
+        CreepSpawner.popCreep();
     }
 }
