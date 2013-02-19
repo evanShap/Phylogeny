@@ -63,7 +63,7 @@ Flickable {
                 var lowerY = tethers[i].follow.y  + tethers[i].follow.height/2 + contentOffsetY;
                 ctx.beginPath();
                 ctx.moveTo( upperX , upperY );
-                ctx.bezierCurveTo( upperX, upperY + levelSpacing/2, lowerX, lowerY - levelSpacing/2, lowerX , lowerY );
+                ctx.bezierCurveTo( upperX, upperY + levelSpacing/2, lowerX, upperY + levelSpacing/2, lowerX , lowerY );
                 ctx.stroke();
             }
             ctx.lineWidth = 13;
@@ -76,7 +76,7 @@ Flickable {
                 ctx.strokeStyle = tethers[i].follow.isMutant ? Qt.rgba(.4, 0, 0, .7) : Qt.rgba( .15, .15, .15, 1);
                 ctx.beginPath();
                 ctx.moveTo( upperX , upperY );
-                ctx.bezierCurveTo( upperX, upperY + levelSpacing/2, lowerX, lowerY - levelSpacing/2, lowerX , lowerY );
+                ctx.bezierCurveTo( upperX, upperY + levelSpacing/2, lowerX, upperY + levelSpacing/2, lowerX , lowerY );
                 ctx.stroke();
             }
         }
@@ -165,8 +165,8 @@ Flickable {
             for( var j=0; j<i; j++){
                 creep1 = chainRepeater.itemAt(i).begCreepItem;
                 creep2 = chainRepeater.itemAt(j).begCreepItem;
-                if( chainRepeater.itemAt(i).creepsInChain !== chainRepeater.itemAt(j).creepsInChain ){}
-                else if( creep1 == creep2 ){}
+                if( !creep1 || !creep2 ) continue;
+                if( creep1 == creep2 ){}
                 else if( creep1.isBranchPoint || creep2.isBranchPoint ){}
                 else if(!creep1.active || !creep2.active){}
                 else if( haveSameTraits( chainRepeater.itemAt(i).begCreepData.traits , chainRepeater.itemAt(j).begCreepData.traits ))
@@ -185,45 +185,53 @@ Flickable {
 
     // attaches chain 1 to head of chain 2, kills head of chain 1
     function mergeChains( chain1 , chain2 ){
-        var leadCreep1 = chain1.begCreepItem;
-        var leadCreep2 = chain2.begCreepItem;
-        if( leadCreep1.isEndCreep ) leadCreep2.isEndCreep = true;
-        else if( leadCreep2.isEndCreep ) leadCreep1.isEndCreep = true;
-        chain2.branchesInChain ++;
-        chain1.branchesInChain ++;
+        var leadChain = ( chain1.creepsInChain > chain2.creepsInChain ) ? chain1 : chain2;
+        var replaceChain = ( chain1.creepsInChain > chain2.creepsInChain ) ? chain2 : chain1;
+        var replaceCreep = replaceChain.begCreepItem;
+        var leadCreep = leadChain.begCreepItem;
+        leadChain.branchesInChain ++;
+        replaceChain.branchesInChain ++;
 
         var _tethers = tethers;
 
-        for( var i=0; i<leadCreep2.leadTethers.length; i++){
-            if(leadCreep2.x < leadCreep1.x)
-                _tethers[leadCreep2.leadTethers[i]].follow.prefXOffset = - .375* activeColumnSpacing * chain2.branchesInChain;
+        for( var i=0; i<leadCreep.leadTethers.length; i++){
+            if(leadCreep.x < replaceCreep.x)
+                _tethers[leadCreep.leadTethers[i]].follow.prefXOffset = - .375* activeColumnSpacing * leadChain.branchesInChain;
             else
-                _tethers[leadCreep2.leadTethers[i]].follow.prefXOffset = .375* activeColumnSpacing * chain2.branchesInChain;
+                _tethers[leadCreep.leadTethers[i]].follow.prefXOffset = .375* activeColumnSpacing * leadChain.branchesInChain;
         }
 
-        var _lead2Tethers = leadCreep2.leadTethers;
+        var _leadTethers = leadCreep.leadTethers;
 
-        for( i=0; i<leadCreep1.leadTethers.length; i++ ){
-            _tethers[leadCreep1.leadTethers[i]].lead = leadCreep2;
-            if(leadCreep2.x < leadCreep1.x)
-                _tethers[leadCreep1.leadTethers[i]].follow.prefXOffset = .375* activeColumnSpacing * chain1.branchesInChain;
+        for( i=0; i<replaceCreep.leadTethers.length; i++ ){
+            _tethers[replaceCreep.leadTethers[i]].lead = leadCreep;
+            if(leadCreep.x < replaceCreep.x)
+                _tethers[replaceCreep.leadTethers[i]].follow.prefXOffset = .375* activeColumnSpacing * replaceChain.branchesInChain;
             else
-                _tethers[leadCreep1.leadTethers[i]].follow.prefXOffset = - .375* activeColumnSpacing * chain1.branchesInChain;
-            _lead2Tethers.push( leadCreep1.leadTethers[i] );
+                _tethers[replaceCreep.leadTethers[i]].follow.prefXOffset = - .375* activeColumnSpacing * replaceChain.branchesInChain;
+            _leadTethers.push( replaceCreep.leadTethers[i] );
         }
-        leadCreep2.leadTethers = _lead2Tethers;
+        leadCreep.leadTethers = _leadTethers;
         tethers = _tethers;
 
-        chain2.branchesInChain += ( chain1.branchesInChain - 1 )
-        leadCreep2.isBranchPoint = true;
-        leadCreep2.branchChain = chain1;
-        leadCreep2.x = .5 * ( leadCreep1.x + leadCreep2.x )
-        var _creepData1 = chain1.creepData
-        _creepData1.pop();
-        chain1.creepData = _creepData1;
-        chain1.popCreep();
-        leadCreep1.kill();
-        leadCreep1.destroy();
+        leadChain.branchesInChain += ( replaceChain.branchesInChain - 1 )
+        leadCreep.isBranchPoint = true;
+        leadCreep.branchChain = replaceChain;
+        leadCreep.x = .5 * ( replaceCreep.x + leadCreep.x )
+        if( !replaceCreep.isEndCreep ){
+        var _creepDataReplace = replaceChain.creepData
+        _creepDataReplace.pop();
+        replaceChain.creepData = _creepDataReplace;
+        replaceChain.popCreep();
+        replaceCreep.kill();
+        replaceCreep.destroy();
+        }
+        else{
+            addTetherHandler( leadCreep , replaceCreep );
+            replaceCreep.deactivate();
+            if( replaceCreep.x < leadCreep.x) replaceCreep.prefXOffset = - .375* activeColumnSpacing;
+            else replaceCreep.prefXOffset = + .375* activeColumnSpacing;
+        }
     }
 
     function killCreepHandler( creep ){
