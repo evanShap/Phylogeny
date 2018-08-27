@@ -1,26 +1,25 @@
-import QtQuick 2.0
+import QtQuick 2.4
+
 Flickable {
     id: stage
     contentHeight: Math.max( stage.height , (currentLevel + 2) * levelSpacing )
     Behavior on contentHeight { NumberAnimation{ duration: 150 } }
     boundsBehavior: Flickable.StopAtBounds
 
-    property int animateInterval: 75
+    property int animateInterval: 35
     property variant tethers: []
-    property variant traitDataModel: traitDataModel
-    property int totalTraits: traitDataModel.count
+    property variant traitDataModel: [
+        { 'min': 0, 'max': 6, 'loops': false }, //color
+        { 'min': 0, 'max': 4, 'loops': false },
+        { 'min': 0, 'max': 4, 'loops': false }
+    ]
+    property int totalTraits: traitDataModel.length
     property real levelSpacing: 120
     property int currentLevel: 0
     property int totalMutations: 0
     property int activeColumns: creepModels.length
     property real activeColumnSpacing: stage.width / activeColumns
 
-    ListModel{
-        id: traitDataModel
-        ListElement{min: 0; max: 6; loops: false} //tentacles
-        ListElement{min: 0; max: 4; loops: false} //lines
-        ListElement{min: 0; max: 4; loops: false} //color
-    }
     property variant creepModels:[
         [ 0 , 3 , 0 ],
         [ 3 , 3 , 1 ],
@@ -72,7 +71,6 @@ Flickable {
                 ctx.stroke();
             }
         }
-        onPainted: {requestPaint()}
     }
 
     Repeater{
@@ -98,6 +96,7 @@ Flickable {
         repeat: true
         onTriggered: {
             updateTethers();
+            tetherCanvas.requestPaint();
         }
     }
 
@@ -106,9 +105,9 @@ Flickable {
     }
 
     function addTetherHandler( tetherLead , tetherFollow ){
-        var _tethers = tethers;
+        var _tethers = tethers.slice();
         var _nextTether = {};
-        var leadIndices = tetherLead.leadTethers
+        var leadIndices = tetherLead.leadTethers.slice()
         leadIndices.push( _tethers.length )
         tetherLead.leadTethers = leadIndices;
         _nextTether["lead"] = tetherLead;
@@ -132,22 +131,25 @@ Flickable {
     }
 
     function checkForAncestor(){
-        var creep1
-        var creep2
+        var creep1, creep2
+        console.log("Chains", chainRepeater.count)
         for( var i=0; i<chainRepeater.count; i++ ){
             for( var j=0; j<i; j++){
                 creep1 = chainRepeater.itemAt(i).begCreepItem;
                 creep2 = chainRepeater.itemAt(j).begCreepItem;
                 if( !creep1 || !creep2 ) continue;
-                if( creep1 == creep2 ){}
-                else if( creep1.isBranchPoint || creep2.isBranchPoint ){}
-                else if(!creep1.active || !creep2.active){}
-                else if( haveSameTraits( chainRepeater.itemAt(i).begCreepData.traits , chainRepeater.itemAt(j).begCreepData.traits ))
+                if( creep1 == creep2 ) continue;
+                if( creep1.isBranchPoint || creep2.isBranchPoint ) continue;
+                if(!creep1.active || !creep2.active) continue;
+                console.log("creep1",i,creep1.traits)
+                console.log("creep2",j,creep2.traits)
+                if( haveSameTraits( chainRepeater.itemAt(i).begCreepData.traits , chainRepeater.itemAt(j).begCreepData.traits )){
                     mergeChains( chainRepeater.itemAt(i) , chainRepeater.itemAt(j) );
+                }
             }
         }
     }
-    // return true of 2 creep models have the same traits
+    // return true if 2 creep models have the same traits
     function haveSameTraits( creepModel1 , creepModel2 ){
         if( creepModel1.length !== creepModel2.length ) return false;
         for ( var i=0; i<creepModel1.length; i++ ){
@@ -165,7 +167,7 @@ Flickable {
         leadChain.branchesInChain ++;
         replaceChain.branchesInChain ++;
 
-        var _tethers = tethers;
+        var _tethers = tethers.slice();
 
         for( var i=0; i<leadCreep.leadTethers.length; i++){
             if(leadCreep.x < replaceCreep.x)
@@ -174,7 +176,7 @@ Flickable {
                 _tethers[leadCreep.leadTethers[i]].follow.prefXOffset = .375* activeColumnSpacing * leadChain.branchesInChain;
         }
 
-        var _leadTethers = leadCreep.leadTethers;
+        var _leadTethers = leadCreep.leadTethers.slice();
 
         for( i=0; i<replaceCreep.leadTethers.length; i++ ){
             _tethers[replaceCreep.leadTethers[i]].lead = leadCreep;
@@ -192,12 +194,12 @@ Flickable {
         leadCreep.branchChain = replaceChain;
         leadCreep.x = .5 * ( replaceCreep.x + leadCreep.x )
         if( !replaceCreep.isEndCreep ){
-        var _creepDataReplace = replaceChain.creepData
-        _creepDataReplace.pop();
-        replaceChain.creepData = _creepDataReplace;
-        replaceChain.popCreep();
-        replaceCreep.kill();
-        replaceCreep.destroy();
+            var _creepDataReplace = replaceChain.creepData
+            _creepDataReplace.pop();
+            replaceChain.creepData = _creepDataReplace;
+            replaceChain.popCreep();
+            replaceCreep.kill();
+            replaceCreep.destroy();
         }
         else{
             addTetherHandler( leadCreep , replaceCreep );
@@ -208,7 +210,7 @@ Flickable {
     }
 
     function killCreepHandler( creep ){
-        var _tethers = tethers;
+        var _tethers = tethers.slice();
         var _creepData = creep.parentChain.creepData;
 
         for ( var i=0; i<creep.leadTethers.length; i++ ){

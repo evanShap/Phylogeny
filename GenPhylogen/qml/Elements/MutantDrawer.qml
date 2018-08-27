@@ -1,5 +1,5 @@
-import QtQuick 2.0
-import "../Elements"
+import QtQuick 2.4
+import "qrc:/Elements/qml/Elements"
 
 Loader{
     id: root
@@ -19,7 +19,7 @@ Loader{
         else hideMutants();
     }
 
-    function showMutants(){
+    function showMutants(){        
         showMutantsAnimation.start();
     }
 
@@ -90,9 +90,9 @@ Loader{
                     MouseArea{
                         anchors.fill:parent
                         onClicked:{
-                            var mutantToAdd = mutantsModel[index];
-                            mutantToAdd["x"] = parent.mapToItem(stage).x
-                            mutantToAdd["y"] = parent.mapToItem(stage).y
+                            var mutantToAdd = mutantsModel[index];                            
+                            mutantToAdd["x"] = parent.mapToItem(stage,0,0).x
+                            mutantToAdd["y"] = parent.mapToItem(stage,0,0).y
                             addMutantSignal( mutantToAdd );
                             hideMutants();
                         }

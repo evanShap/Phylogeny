@@ -1,5 +1,5 @@
-import QtQuick 2.0
-import "../Elements"
+import QtQuick 2.4
+import "qrc:/Elements/qml/Elements"
 Item{
     id: root
 
@@ -88,21 +88,21 @@ Item{
         for ( var i=0; i<traits.length; i++ ){
             validTraits[i] = [];
             // if we have model for how trait bounds
-            if( traitDataModel.get(i)){
+            if( traitDataModel[i]){
                 // if trait is at the minimum bound
-                if( traits[i] == traitDataModel.get(i).min){
-                    if( traitDataModel.get(i).loops ){
-                        validTraits[i].push( traitDataModel.get(i).max );
-                        if( traits[i]+1 < traitDataModel.get(i).max ) validTraits[i].push( traits[i]+1 );
+                if( traits[i] == traitDataModel[i].min){
+                    if( traitDataModel[i].loops ){
+                        validTraits[i].push( traitDataModel[i].max );
+                        if( traits[i]+1 < traitDataModel[i].max ) validTraits[i].push( traits[i]+1 );
                     }
                     else
                         validTraits[i].push( traits[i]+1 );
                 }
                 // if trait is at the maximum bound
-                else if( traits[i] == traitDataModel.get(i).max){
-                    if( traitDataModel.get(i).loops ){
-                        validTraits[i].push( traitDataModel.get(i).min );
-                        if( traits[i]-1 > traitDataModel.get(i).min ) validTraits[i].push( traits[i]-1 );
+                else if( traits[i] == traitDataModel[i].max){
+                    if( traitDataModel[i].loops ){
+                        validTraits[i].push( traitDataModel[i].min );
+                        if( traits[i]-1 > traitDataModel[i].min ) validTraits[i].push( traits[i]-1 );
                     }
                     else
                         validTraits[i].push( traits[i]-1 );
@@ -123,21 +123,20 @@ Item{
         var mutantData = {}
         var _mutantTraits = []
         mutantData["isMutator"] = false;
-        mutantData["traits"] = traits;
+        mutantData["traits"] = traits.slice();
         _mutantsModel.push( mutantData );
 
         //add all possible mutated forms
         for ( i=0; i<validTraits.length; i++ ){
             for ( var j=0; j<validTraits[i].length; j++ ){
-                _mutantTraits = traits;
+                _mutantTraits = traits.slice();
                 _mutantTraits[i] = validTraits[i][j];
                 mutantData = {}
-                mutantData["isMutator"] = true;
+                mutantData["isMutator"] = true;                
                 mutantData["traits"] = _mutantTraits;
                 _mutantsModel.push( mutantData );
             }
         }
-
         return _mutantsModel;
     }
 }

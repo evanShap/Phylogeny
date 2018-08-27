@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.4
 import "CreepSpawner.js" as CreepSpawner
 
 Item {

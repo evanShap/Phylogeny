@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+    </qresource>
+    <qresource prefix="/Elements">
+        <file>qml/Elements/TreeStage.qml</file>
+        <file>qml/Elements/Tentacle.qml</file>
+        <file>qml/Elements/MutantDrawer.qml</file>
+        <file>qml/Elements/CreepView.qml</file>
+        <file>qml/Elements/CreepSpawner.js</file>
+        <file>qml/Elements/Creep.qml</file>
+        <file>qml/Elements/Chain.qml</file>
+    </qresource>
+</RCC>
